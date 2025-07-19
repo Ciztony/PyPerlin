@@ -7,19 +7,20 @@ class RNG:
         # Shuffle the permutation table
         np.random.shuffle(raw_perm)
         # Combine perm for indexes > 255
-        self.permtable = np.tile(raw_perm,2)
+        permtable = np.tile(raw_perm,2)
+        return permtable
 
-
-class PerlinNoise(RNG):
+class PerlinNoise():
     def __init__(self,seed):
         # Specs
+        self.random_number_generator = RNG()
         self.seed = seed
         np.random.seed(self.seed) # Sets the seed
 
         self.gradients = np.array([[1, 0], [0, 1], [-1, 0], [0, -1],
                       [1, 1], [-1, 1], [-1, -1], [1, -1]])
         # Generates permutation table
-        self.generate_perm()
+        self.permtable = self.random_number_generator.generate_perm()
     
     def interpolate(self,a0:float,a1:float,w:float):
         # a0 and a1 are the two values
