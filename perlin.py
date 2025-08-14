@@ -1,4 +1,6 @@
 import numpy as np
+from math import floor
+from config import generationData
 
 class RNG:
     def generate_perm(self):
@@ -7,20 +9,20 @@ class RNG:
         # Shuffle the permutation table
         np.random.shuffle(raw_perm)
         # Combine perm for indexes > 255
-        permtable = np.tile(raw_perm,2)
-        return permtable
+        self.permtable = np.tile(raw_perm,2)
 
-class PerlinNoise():
+
+class PerlinNoise(RNG):
     def __init__(self,seed):
         # Specs
-        self.random_number_generator = RNG()
         self.seed = seed
+        self.perlinValues = {int(key):int(value) for key,value in generationData.perlinValues.items()}
         np.random.seed(self.seed) # Sets the seed
 
         self.gradients = np.array([[1, 0], [0, 1], [-1, 0], [0, -1],
                       [1, 1], [-1, 1], [-1, -1], [1, -1]])
         # Generates permutation table
-        self.permtable = self.random_number_generator.generate_perm()
+        self.generate_perm()
     
     def interpolate(self,a0:float,a1:float,w:float):
         # a0 and a1 are the two values
@@ -35,27 +37,26 @@ class PerlinNoise():
         idx = (self.permtable[ix & 255]+iy) & 255 # Don't bother asking IT WORKS DONT TOUCH IT!! 
         return self.gradients[self.permtable[idx]&7] # Choose one out of the 8
 
-    def perlin(self,x:float, y:float):
-        # Acquire four corners of current grid point
-        x0,y0 = int(x),int(y)
-        x1,y1 = x0 + 1, y0 + 1
+    def perlin(self, x: float, y: float):
 
-        # Interpolation weights for preventing squareness
-        sx,sy = x - x0, y - y0
+        # Floor instead of int() for correct behavior with negatives
+        x0, y0 = floor(x), floor(y)
+        x1, y1 = x0 + 1, y0 + 1
+
+        sx, sy = x - x0, y - y0
 
         # Interpolate top corners
-        n0 = self.dot_grid_gradient(x0,y0,x,y)
-        n1 = self.dot_grid_gradient(x1,y0,x,y)
-        ix0 = self.interpolate(n0,n1,sx)
+        n0 = self.dot_grid_gradient(x0, y0, x, y)
+        n1 = self.dot_grid_gradient(x1, y0, x, y)
+        ix0 = self.interpolate(n0, n1, sx)
 
         # Interpolate bottom corners
-        n2 = self.dot_grid_gradient(x0,y1,x,y)
-        n3 = self.dot_grid_gradient(x1,y1,x,y)
-        ix1 = self.interpolate(n2,n3,sx)
+        n2 = self.dot_grid_gradient(x0, y1, x, y)
+        n3 = self.dot_grid_gradient(x1, y1, x, y)
+        ix1 = self.interpolate(n2, n3, sx)
 
-        # Interpolate both values together
-    
-        return max(0,min(self.interpolate(ix0,ix1,sy),1))
+        # Return normalized mapped value
+        return self.perlinValues[int(max(0, min(self.interpolate(ix0, ix1, sy) + 0.8, 1)))]
 
     # Get gradient at grid point
     def dot_grid_gradient(self,ix:int,iy:int,x:float,y:float):
