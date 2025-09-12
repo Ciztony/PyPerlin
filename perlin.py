@@ -16,13 +16,13 @@ class PerlinNoise:
         # Specs
         self.rng = RNG()
         self.seed = seed
-        self.perlinValues = {int(key):int(value) for key,value in generationData.perlinValues.items()}
         np.random.seed(self.seed) # Sets the seed
 
         self.gradients = np.array([[1, 0], [0, 1], [-1, 0], [0, -1],
                       [1, 1], [-1, 1], [-1, -1], [1, -1]])
         # Generates permutation table
         self.rng.generate_perm()
+        self.permtable = self.rng.permtable
     
     def interpolate(self,a0:float,a1:float,w:float):
         # a0 and a1 are the two values
