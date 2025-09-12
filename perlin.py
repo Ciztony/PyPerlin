@@ -1,6 +1,5 @@
 import numpy as np
 from math import floor
-from config import generationData
 
 class RNG:
     def generate_perm(self):
@@ -12,9 +11,10 @@ class RNG:
         self.permtable = np.tile(raw_perm,2)
 
 
-class PerlinNoise(RNG):
+class PerlinNoise:
     def __init__(self,seed):
         # Specs
+        self.rng = RNG()
         self.seed = seed
         self.perlinValues = {int(key):int(value) for key,value in generationData.perlinValues.items()}
         np.random.seed(self.seed) # Sets the seed
@@ -22,7 +22,7 @@ class PerlinNoise(RNG):
         self.gradients = np.array([[1, 0], [0, 1], [-1, 0], [0, -1],
                       [1, 1], [-1, 1], [-1, -1], [1, -1]])
         # Generates permutation table
-        self.generate_perm()
+        self.rng.generate_perm()
     
     def interpolate(self,a0:float,a1:float,w:float):
         # a0 and a1 are the two values
@@ -56,7 +56,7 @@ class PerlinNoise(RNG):
         ix1 = self.interpolate(n2, n3, sx)
 
         # Return normalized mapped value
-        return self.perlinValues[int(max(0, min(self.interpolate(ix0, ix1, sy) + 0.8, 1)))]
+        return self.interpolate(ix0, ix1, sy)
 
     # Get gradient at grid point
     def dot_grid_gradient(self,ix:int,iy:int,x:float,y:float):
@@ -66,3 +66,4 @@ class PerlinNoise(RNG):
         gradient = self.random_gradient(ix,iy)
         # Dot product dx -> x-ix * grad x and dy -> x-iy * grad y
         return ((x-ix) * gradient[0]) + ((y-iy) * gradient[1])
+
