@@ -1,5 +1,8 @@
 # PerlinGen
 
+![Python Version](https://img.shields.io/badge/python-3.12.2-blue)
+
+
 ### A lightweight Python Perlin noise generator
 
 .perlin() :
