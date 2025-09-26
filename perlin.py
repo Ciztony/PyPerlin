@@ -14,16 +14,17 @@ class RNG:
 class PerlinNoise:
     def __init__(self,seed):
         # Specs
-        self.rng = RNG()
+        self.random_number_generator = RNG()
         self.seed = seed
         np.random.seed(self.seed) # Sets the seed
 
         self.gradients = np.array([[1, 0], [0, 1], [-1, 0], [0, -1],
                       [1, 1], [-1, 1], [-1, -1], [1, -1]])
         # Generates permutation table
-        self.rng.generate_perm()
-        self.permtable = self.rng.permtable
+        self.random_number_generator.generate_perm()
+        self.permtable = self.random_number_generator.permtable
     
+
     def interpolate(self,a0:float,a1:float,w:float):
         # a0 and a1 are the two values
         # w is the interpolation weight
@@ -56,7 +57,7 @@ class PerlinNoise:
         ix1 = self.interpolate(n2, n3, sx)
 
         # Return normalized mapped value
-        return self.interpolate(ix0, ix1, sy)
+        return self.interpolate(ix0,ix1,sy)
 
     # Get gradient at grid point
     def dot_grid_gradient(self,ix:int,iy:int,x:float,y:float):
@@ -66,4 +67,3 @@ class PerlinNoise:
         gradient = self.random_gradient(ix,iy)
         # Dot product dx -> x-ix * grad x and dy -> x-iy * grad y
         return ((x-ix) * gradient[0]) + ((y-iy) * gradient[1])
-
